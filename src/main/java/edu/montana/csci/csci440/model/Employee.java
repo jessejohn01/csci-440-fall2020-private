@@ -2,6 +2,7 @@ package edu.montana.csci.csci440.model;
 
 import edu.montana.csci.csci440.util.DB;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -9,10 +10,11 @@ import java.util.List;
 
 public class Employee extends Model {
 
-    private long employeeId;
+    private Long employeeId;
     private String firstName;
     private String lastName;
     private String email;
+    private String title;
 
     public Employee() {
         // new employee for insert
@@ -23,10 +25,17 @@ public class Employee extends Model {
         lastName = results.getString("LastName");
         email = results.getString("Email");
         employeeId = results.getLong("EmployeeId");
+        title = results.getString("Title");
+    }
+
+    public static List<Employee.SalesSummary> getSalesSummaries() {
+        //TODO - a GROUP BY query to determine the sales (look at the invoices table), using the SalesSummary class
+        return Collections.emptyList();
     }
 
     @Override
     public boolean verify() {
+        _errors.clear(); // clear any existing errors
         if (firstName == null || "".equals(firstName)) {
             addError("FirstName can't be null or blank!");
         }
@@ -107,18 +116,37 @@ public class Employee extends Model {
         this.email = email;
     }
 
-    public long getEmployeeId() {
+    public Long getEmployeeId() {
         return employeeId;
     }
 
     public List<Customer> getCustomers() {
-        return Collections.emptyList();
+        return Customer.forEmployee(employeeId);
     }
+
     public List<Employee> getReports() {
-        return Collections.emptyList();
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT * FROM employees WHERE ReportsTo=?"
+             )) {
+            stmt.setLong(1, this.getEmployeeId());
+            ResultSet results = stmt.executeQuery();
+            List<Employee> resultList = new LinkedList<>();
+            while (results.next()) {
+                resultList.add(new Employee(results));
+            }
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
     public Employee getBoss() {
+        //TODO implement
         return null;
+    }
+
+    public static List<Employee> all() {
+        return all(0, Integer.MAX_VALUE);
     }
 
     public static List<Employee> all(int page, int count) {
@@ -154,6 +182,49 @@ public class Employee extends Model {
             }
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
+        }
+    }
+
+    public void setTitle(String programmer) {
+        title = programmer;
+    }
+
+    public void setReportsTo(Employee employee) {
+        // TODO implement
+    }
+
+    public static class SalesSummary {
+        private String firstName;
+        private String lastName;
+        private String email;
+        private Long salesCount;
+        private BigDecimal salesTotals;
+        private SalesSummary(ResultSet results) throws SQLException {
+            firstName = results.getString("FirstName");
+            lastName = results.getString("LastName");
+            email = results.getString("Email");
+            salesCount = results.getLong("SalesCount");
+            salesTotals = results.getBigDecimal("SalesTotal");
+        }
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public Long getSalesCount() {
+            return salesCount;
+        }
+
+        public BigDecimal getSalesTotals() {
+            return salesTotals;
         }
     }
 }

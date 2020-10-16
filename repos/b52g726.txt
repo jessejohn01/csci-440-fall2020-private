@@ -1,1 +1,1 @@
-git@githib.com:ryanhansen2222/csci-440-fall2020-private.git
+git@github.com:ryanhansen2222/csci-440-fall2020-private.git

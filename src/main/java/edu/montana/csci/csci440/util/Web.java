@@ -21,20 +21,16 @@ public class Web {
 
     public static final int PAGE_SIZE = 10;
     private static Web INSTANCE = new Web();
-    static ThreadLocal<Request> REQ = new ThreadLocal<>();
-    static ThreadLocal<Response> RESP = new ThreadLocal<>();
-    static ThreadLocal<Long> TIMESTAMP = new ThreadLocal<>();
+    static ThreadLocal<RequestInfo> INFO = new ThreadLocal<>();
 
     public static void set(Request request, Response response, long startTime) {
-        REQ.set(request);
-        RESP.set(response);
-        TIMESTAMP.set(startTime);
+        INFO.set(new RequestInfo(request, response, startTime, DB.getConnectionCount()));
     }
 
     public static Request getRequest(){
-        return REQ.get();
+        return INFO.get().getRequest();
     }
-    public static Response getResponse(){ return RESP.get(); }
+    public static Response getResponse(){ return INFO.get().getResponse(); }
 
     public static String renderTemplate(String index, Object... args) {
         HashMap<Object, Object> map = new HashMap<>();
@@ -59,17 +55,19 @@ public class Web {
                 if (method.getParameterTypes()[0] == Integer.class || method.getParameterTypes()[0] == Integer.TYPE) {
                     int i = Integer.parseInt(req.queryParams(property));
                     method.invoke(obj, i);
-                }
-                if (method.getParameterTypes()[0] == Date.class) {
+                } else if (method.getParameterTypes()[0] == Long.class || method.getParameterTypes()[0] == Long.TYPE) {
+                    long i = Long.parseLong(req.queryParams(property));
+                    method.invoke(obj, i);
+                } else if (method.getParameterTypes()[0] == Date.class) {
                     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
                     Date date = formatter.parse(req.queryParams(property));
                     method.invoke(obj, date);
-                }
-                if (method.getParameterTypes()[0] == String.class) {
+                } else if (method.getParameterTypes()[0] == String.class) {
                     method.invoke(obj, req.queryParams(property));
-                }
-                if (method.getParameterTypes()[0] == BigDecimal.class) {
+                } else if (method.getParameterTypes()[0] == BigDecimal.class) {
                     method.invoke(obj, parseBigDecimal(req, property));
+                } else {
+                    throw new IllegalStateException("Do not know how to set value of type " + method.getParameterTypes()[0].getName());
                 }
             }
         } catch (Exception e) {
@@ -151,7 +149,16 @@ public class Web {
     public String nextPage(List collection){
         if (collection.size() == PAGE_SIZE) {
             Integer page = getPage();
-            return "<a href='" + getRequest().pathInfo() + "?page=" + (page + 1) + "'>Next Page &gt;&gt;</a>";
+            return "<a href='" + getRequest().pathInfo() + "?page=" + (page + 1) + getOrderBy() + "'>Next Page &gt;&gt;</a>";
+        } else {
+            return "";
+        }
+    }
+
+    private String getOrderBy() {
+        String o = getRequest().queryParams("o");
+        if (o != null && !"".equals(o)) {
+            return "&o=" + o;
         } else {
             return "";
         }
@@ -169,15 +176,15 @@ public class Web {
     public String prevPage() {
         Integer page = getPage();
         if (page > 2) {
-            return "<a href='" + getRequest().pathInfo() + "?page=" + (page - 1) + "'>&lt;&lt;  Previous Page</a>";
+            return "<a href='" + getRequest().pathInfo() + "?page=" + (page - 1) + getOrderBy() + "'>&lt;&lt;  Previous Page</a>";
         } else if (page == 2) {
-            return "<a href='" + getRequest().pathInfo() + "'>&lt;&lt;  Previous Page</a>";
+            return "<a href='" + getRequest().pathInfo() + "?" + getOrderBy() + "'>&lt;&lt;  Previous Page</a>";
         } else {
             return "";
         }
     }
 
-    public String select(String model, String displayProperty, Integer selected) throws Exception {
+    public String select(String model, String displayProperty, Object selected) throws Exception {
         return select(model, displayProperty, selected, false);
     }
 
@@ -219,8 +226,13 @@ public class Web {
             Web.set(request, response, System.currentTimeMillis());
         });
         after((request, response) -> {
-            Long aLong = TIMESTAMP.get();
-            System.out.println("  << REQUEST " + request.requestMethod() + " " + request.pathInfo() + " completed in " + ((System.currentTimeMillis() - TIMESTAMP.get()) / 1000.0) + " seconds");
+            long startTimestamp = INFO.get().timestamp;
+            long startConnections = INFO.get().getConnections();
+            long endConnections = DB.getConnectionCount();
+            long totalConnections = endConnections - startConnections;
+            System.out.println("  << REQUEST " + request.requestMethod() + " " + request.pathInfo() + " completed in " +
+                    ((System.currentTimeMillis() - startTimestamp) / 1000.0) + " seconds " +
+                    "(" + totalConnections + " Database Connection" + (totalConnections == 1 ? "" : "s") + ")");
         });
 
         exception(Exception.class, (e, request, response) -> {
@@ -238,6 +250,35 @@ public class Web {
                     "error", e,
                     "stacktrace", sw.getBuffer().toString()));
         });
+    }
+
+    private static class RequestInfo {
+        public RequestInfo(Request request, Response response, long timestamp, long connections) {
+            this.request = request;
+            this.response = response;
+            this.timestamp = timestamp;
+            this.connections = connections;
+        }
+        private Request request;
+        private Response response;
+        private long timestamp;
+        private long connections;
+
+        public Request getRequest() {
+            return request;
+        }
+
+        public Response getResponse() {
+            return response;
+        }
+
+        public long getTimestamp() {
+            return timestamp;
+        }
+
+        public long getConnections() {
+            return connections;
+        }
     }
 
 }

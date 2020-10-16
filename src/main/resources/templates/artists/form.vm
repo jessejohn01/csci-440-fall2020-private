@@ -21,7 +21,7 @@
     <tbody>
     <tr>
         <td>Name</td>
-        <td><input type="text" name="Title" value="$!artist.Name"></td>
+        <td><input type="text" name="Name" value="$!artist.Name"></td>
     </tr>
     </tbody>
 </table>

@@ -37,5 +37,28 @@
     </tbody>
 </table>
 
+<h4>Invoice Items</h4>
+<table>
+    <thead>
+    <tr>
+        <th>InvoiceLineId</th>
+        <th>TrackId</th>
+        <th>UnitPrice</th>
+        <th>Quantity</th>
+    </tr>
+    </thead>
+    <tbody>
+        #foreach( $item in $invoice.InvoiceItems )
+        <tr>
+            <td>$!item.InvoiceLineId</td>
+            <td>$!item.TrackId</td>
+            <td>$!item.UnitPrice</td>
+            <td>$!item.Quantity</td>
+        </tr>
+        #end
+    </tbody>
+</table>
+
+
 
 #parse('templates/footer.vm')

@@ -1,9 +1,0 @@
-#parse('templates/header.vm')
-
-<h1>Playlist</h1>
-
-<form action="/playlists/new" method="post">
-    #parse('templates/playlists/form.vm')
-</form>
-
-#parse('templates/footer.vm')

@@ -1,6 +1,5 @@
 package edu.montana.csci.csci440;
 
-import edu.montana.csci.csci440.model.Employee;
 import edu.montana.csci.csci440.util.DB;
 import org.junit.jupiter.api.AfterEach;
 
@@ -22,6 +21,15 @@ public class DBTest {
         }
     }
 
+    public boolean executeDDL(String ddl) {
+        try (Connection conn = DB.connect();
+             Statement stmt = conn.createStatement()) {
+            return stmt.execute(ddl);
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+    }
+
     public List<Map<String, Object>> executeSQL(String sqlString) {
         try (Connection conn = DB.connect();
              Statement stmt = conn.createStatement()) {
@@ -38,6 +46,15 @@ public class DBTest {
                 resultList.add(hashMap);
             }
             return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+    }
+
+    public boolean executeUpdate(String sqlString) {
+        try (Connection conn = DB.connect();
+             Statement stmt = conn.createStatement()) {
+            return stmt.execute(sqlString);
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }

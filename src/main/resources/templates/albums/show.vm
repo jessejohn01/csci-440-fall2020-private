@@ -14,6 +14,34 @@
         <td>Title</td>
         <td>$!album.Title</td>
     </tr>
+    <tr>
+        <td>Artist</td>
+        <td><a href="/artists/$!album.ArtistId">$!album.Artist.Name</a></td>
+    </tr>
+    </tbody>
+</table>
+
+<h4>Tracks</h4>
+<table>
+    <thead>
+    <tr>
+        <th>Track ID</th>
+        <th>Name</th>
+        <th>Milliseconds</th>
+        <th>Bytes</th>
+        <th>UnitPrice</th>
+    </tr>
+    </thead>
+    <tbody>
+        #foreach( $track in $album.tracks )
+        <tr>
+            <td><a href="/tracks/$track.TrackId">$track.TrackId</a></td>
+            <td>$!track.Name</td>
+            <td>$!track.Milliseconds</td>
+            <td>$!track.Bytes</td>
+            <td>$!track.UnitPrice</td>
+        </tr>
+        #end
     </tbody>
 </table>
 

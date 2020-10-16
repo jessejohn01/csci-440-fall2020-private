@@ -31,6 +31,10 @@
         <td>Email</td>
         <td><input type="text" name="Email" value="$!employee.Email"></td>
     </tr>
+    <tr>
+        <td>Boss</td>
+        <td>$web.select('Employee', 'Email', $!web.param('ReportsTo'), false)</td>
+    </tr>
     </tbody>
 </table>
 <button>Save</button>

@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Invoice extends Model {
 
-    long invoiceId;
+    Long invoiceId;
     String billingAddress;
     String billingCity;
     String billingState;
@@ -25,7 +25,6 @@ public class Invoice extends Model {
 
     private Invoice(ResultSet results) throws SQLException {
         billingAddress = results.getString("BillingAddress");
-        billingCity = results.getString("BillingCity");
         billingState = results.getString("BillingState");
         billingCountry = results.getString("BillingCountry");
         billingPostalCode = results.getString("BillingPostalCode");
@@ -40,7 +39,7 @@ public class Invoice extends Model {
         return null;
     }
 
-    public long getInvoiceId() {
+    public Long getInvoiceId() {
         return invoiceId;
     }
 
@@ -90,6 +89,10 @@ public class Invoice extends Model {
 
     public void setTotal(BigDecimal total) {
         this.total = total;
+    }
+
+    public static List<Invoice> all() {
+        return all(0, Integer.MAX_VALUE);
     }
 
     public static List<Invoice> all(int page, int count) {

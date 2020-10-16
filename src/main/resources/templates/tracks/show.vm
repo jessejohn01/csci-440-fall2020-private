@@ -15,6 +15,10 @@
         <td>$!track.Name</td>
     </tr>
     <tr>
+        <td>Album</td>
+        <td><a href="/albums/$!trakc.AlbumId">$!album.Album.Title</a></td>
+    </tr>
+    <tr>
         <td>Milliseconds</td>
         <td>$!track.Milliseconds</td>
     </tr>

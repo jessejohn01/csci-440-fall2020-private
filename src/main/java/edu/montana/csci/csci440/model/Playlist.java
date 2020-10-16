@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Playlist extends Model {
 
-    long playlistId;
+    Long playlistId;
     String name;
 
     public Playlist() {
@@ -25,15 +25,12 @@ public class Playlist extends Model {
 
 
     public List<Track> getTracks(){
+        // TODO implement, order by track name
         return Collections.emptyList();
     }
 
-    public long getPlaylistId() {
+    public Long getPlaylistId() {
         return playlistId;
-    }
-
-    public void setPlaylistId(long playlistId) {
-        this.playlistId = playlistId;
     }
 
     public String getName() {
@@ -42,6 +39,10 @@ public class Playlist extends Model {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public static List<Playlist> all() {
+        return all(0, Integer.MAX_VALUE);
     }
 
     public static List<Playlist> all(int page, int count) {

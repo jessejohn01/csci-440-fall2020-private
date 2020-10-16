@@ -1,6 +1,8 @@
 #parse('templates/header.vm')
 
 <h3>Employees</h3>
+<a href="/employees/tree">[Employee Tree]</a>
+<a href="/employees/sales">[Sales Report]</a>
 
 <table>
     <thead>
@@ -27,5 +29,6 @@ $web.pagingWidget($employees)
 
 
 <a href="/employees/new">[Create New Employee]</a>
+
 
 #parse('templates/footer.vm')

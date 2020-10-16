@@ -12,7 +12,8 @@ import java.util.List;
 
 public class Album extends Model {
 
-    long albumId;
+    Long albumId;
+    Long artistId;
     String title;
 
     public Album() {
@@ -21,22 +22,27 @@ public class Album extends Model {
     private Album(ResultSet results) throws SQLException {
         title = results.getString("Title");
         albumId = results.getLong("AlbumId");
+        artistId = results.getLong("ArtistId");
     }
 
     public Artist getArtist() {
-        return null;
+        return Artist.find(artistId);
+    }
+
+    public void setArtist(Artist artist) {
+        artistId = artist.getArtistId();
     }
 
     public List<Track> getTracks() {
-        return Collections.emptyList();
+        return Track.forAlbum(albumId);
     }
 
-    public long getAlbumId() {
+    public Long getAlbumId() {
         return albumId;
     }
 
-    public void setAlbumId(long albumId) {
-        this.albumId = albumId;
+    public void setAlbum(Album album) {
+        this.albumId = album.getAlbumId();
     }
 
     public String getTitle() {
@@ -45,6 +51,10 @@ public class Album extends Model {
 
     public void setTitle(String name) {
         this.title = name;
+    }
+
+    public Long getArtistId() {
+        return artistId;
     }
 
     public static List<Album> all() {
@@ -68,7 +78,7 @@ public class Album extends Model {
         }
     }
 
-    public static Album find(int i) {
+    public static Album find(long i) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM albums WHERE AlbumId=?")) {
             stmt.setLong(1, i);
@@ -81,6 +91,11 @@ public class Album extends Model {
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
+    }
+
+    public static List<Album> getForArtist(Long artistId) {
+        // TODO implement
+        return Collections.emptyList();
     }
 
 }

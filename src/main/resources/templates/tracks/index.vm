@@ -1,6 +1,6 @@
 #parse('templates/header.vm')
 
-<h3>Tracks</h3>
+<h3>Tracks <small>($!totalTracks Total)</small></h3>
 
 <div style="padding: 12px">
     <form>
@@ -17,8 +17,10 @@
     <tr>
         <th>Track ID</th>
         <th>Name</th>
-        <th>Milliseconds</th>
-        <th>Bytes</th>
+        <th>Album</th>
+        <th>ArtistName</th>
+        <th><a href="?o=Milliseconds">Milliseconds</a></th>
+        <th><a href="?o=Bytes">Bytes</a></th>
         <th>UnitPrice</th>
     </tr>
     </thead>
@@ -27,6 +29,8 @@
         <tr>
             <td><a href="/tracks/$track.TrackId">$track.TrackId</a></td>
             <td>$!track.Name</td>
+            <td>$!track.AlbumTitle</td>
+            <td>$!track.ArtistName</td>
             <td>$!track.Milliseconds</td>
             <td>$!track.Bytes</td>
             <td>$!track.UnitPrice</td>

@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Artist extends Model {
 
-    long artistId;
+    Long artistId;
     String name;
 
     public Artist() {
@@ -25,15 +25,15 @@ public class Artist extends Model {
     }
 
     public List<Album> getAlbums(){
-        return Collections.emptyList();
+        return Album.getForArtist(artistId);
     }
 
-    public long getArtistId() {
+    public Long getArtistId() {
         return artistId;
     }
 
-    public void setArtistId(long artistId) {
-        this.artistId = artistId;
+    public void setArtist(Artist artist) {
+        this.artistId = artist.getArtistId();
     }
 
     public String getName() {
@@ -65,7 +65,7 @@ public class Artist extends Model {
         }
     }
 
-    public static Artist find(int i) {
+    public static Artist find(long i) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM artists WHERE ArtistId=?")) {
             stmt.setLong(1, i);

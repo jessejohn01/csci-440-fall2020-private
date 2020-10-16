@@ -25,7 +25,4 @@
 
 $web.pagingWidget($customers)
 
-
-<a href="/customers/new">[Create New Customer]</a>
-
 #parse('templates/footer.vm')
