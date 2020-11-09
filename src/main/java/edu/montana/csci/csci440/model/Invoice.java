@@ -33,6 +33,7 @@ public class Invoice extends Model {
     }
 
     public List<InvoiceItem> getInvoiceItems(){
+        //TODO implement
         return Collections.emptyList();
     }
     public Customer getCustomer() {

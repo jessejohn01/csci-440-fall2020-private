@@ -11,6 +11,7 @@ import java.util.List;
 public class Employee extends Model {
 
     private Long employeeId;
+    private Long reportsTo;
     private String firstName;
     private String lastName;
     private String email;
@@ -25,6 +26,7 @@ public class Employee extends Model {
         lastName = results.getString("LastName");
         email = results.getString("Email");
         employeeId = results.getLong("EmployeeId");
+        reportsTo = results.getLong("ReportsTo");
         title = results.getString("Title");
     }
 
@@ -122,6 +124,14 @@ public class Employee extends Model {
 
     public List<Customer> getCustomers() {
         return Customer.forEmployee(employeeId);
+    }
+
+    public Long getReportsTo() {
+        return reportsTo;
+    }
+
+    public void setReportsTo(Long reportsTo) {
+        this.reportsTo = reportsTo;
     }
 
     public List<Employee> getReports() {

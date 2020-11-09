@@ -40,6 +40,21 @@ public class TrackTest extends DBTest {
     }
 
     @Test
+    void testDeleteWorks() {
+        Track track = new Track();
+
+        track.setName("Example");
+        track.setAlbum(Album.find(1));
+
+        assertNull(track.getTrackId());
+        track.create();
+        assertNotNull(track.getTrackId());
+        track.delete();
+
+        assertNull(Track.find(track.getTrackId()));
+    }
+
+    @Test
     void testValidationWorks() {
         Track track = new Track();
 
@@ -111,7 +126,7 @@ public class TrackTest extends DBTest {
 
         // cache should have been invalidated
         count = Track.count();
-        assertEquals(initialCount + 2, DB.getConnectionCount());
+        assertEquals(initialCount + 4, DB.getConnectionCount());
 
     }
 

@@ -1,7 +1,9 @@
 package edu.montana.csci.csci440;
 
+import edu.montana.csci.csci440.model.Track;
 import edu.montana.csci.csci440.util.DB;
 import org.junit.jupiter.api.AfterEach;
+import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 import java.sql.*;
@@ -18,6 +20,12 @@ public class DBTest {
             DB.reset();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+        try {
+            Jedis jedis = new Jedis();
+            jedis.del(Track.REDIS_CACHE_KEY);
+        } catch (Exception e) {
+            System.out.println("No redis found to reset");
         }
     }
 
