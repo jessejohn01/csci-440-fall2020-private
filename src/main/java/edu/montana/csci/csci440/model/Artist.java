@@ -15,6 +15,7 @@ public class Artist extends Model {
 
     Long artistId;
     String name;
+    String previousName;
 
     public Artist() {
     }
@@ -41,6 +42,7 @@ public class Artist extends Model {
     }
 
     public void setName(String name) {
+        this.previousName = this.name;
         this.name = name;
     }
 
@@ -51,9 +53,10 @@ public class Artist extends Model {
     public static List<Artist> all(int page, int count) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM artists LIMIT ?"
+                     "SELECT * FROM artists ORDER BY ArtistId LIMIT ? OFFSET ?"
              )) {
             stmt.setInt(1, count);
+            stmt.setInt(2, count* (page-1));
             ResultSet results = stmt.executeQuery();
             List<Artist> resultList = new LinkedList<>();
             while (results.next()) {
@@ -63,6 +66,64 @@ public class Artist extends Model {
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
+    }
+
+    public boolean create(){
+        try (Connection conn = DB.connect()){
+            PreparedStatement stmt = conn.prepareStatement(
+                    "INSERT INTO artists(Name)" +
+                            "VALUES (?)"
+            );
+            stmt.setString(1, this.name);
+            stmt.execute();
+            this.artistId = DB.getLastID(conn);
+            return true;
+        }catch (SQLException sqlException){
+            throw new RuntimeException(sqlException);
+        }
+    }
+
+    public boolean update(){
+        if(verify()) {
+            try (Connection conn = DB.connect();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "UPDATE artists SET Name=? WHERE ArtistId=? and Name=?")) { // Simple OC implementation.
+                stmt.setString(1, this.getName());
+                stmt.setLong(2, this.getArtistId());
+                stmt.setString(3, this.previousName);
+                int rowsUpdated = stmt.executeUpdate();
+                if (rowsUpdated == 0) {
+                    System.out.println("The update failed. Please try again.");
+                    return false;
+                }
+
+                return true;
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+        }else{
+            return false;
+        }
+    }
+
+    public void delete() {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "DELETE FROM artists WHERE ArtistId=?")) {
+            stmt.setLong(1, this.getArtistId());
+            stmt.executeUpdate();
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+    }
+
+    public boolean verify() {
+        _errors.clear(); // clear any existing errors
+        if (name == null || "".equals(name)) {
+            addError("Name can't be null or blank!");
+        }
+
+        return !hasErrors();
     }
 
     public static Artist find(long i) {
