@@ -85,7 +85,9 @@ public class Web {
     private static Method findMethod(Class<?> clazz, String s) {
         Method[] methods = clazz.getMethods();
         for (Method method : methods) {
-            if (method.getName().equals(s)) {
+            if (method.getName().equals(s) &&
+                    method.getParameterTypes().length == 1 &&
+            !method.getParameterTypes()[0].getPackageName().startsWith("edu.montana")) {
                 return method;
             }
         }
