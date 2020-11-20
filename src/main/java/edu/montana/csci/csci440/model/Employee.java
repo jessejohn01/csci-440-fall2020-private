@@ -44,6 +44,9 @@ public class Employee extends Model {
         if (lastName == null || "".equals(lastName)) {
             addError("LastName can't be null!");
         }
+        if(email == null || "".equals(email) || !email.contains("@")){
+            addError("Email format is incorrect!");
+        }
         return !hasErrors();
     }
 
@@ -150,21 +153,35 @@ public class Employee extends Model {
             throw new RuntimeException(sqlException);
         }
     }
-    public Employee getBoss() {
-        //TODO implement
-        return null;
+    public Employee getBoss() { //returns an Employee object that this Employee object reports to.
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM employees " +
+                     "WHERE EmployeeId=?")) {
+            stmt.setLong(1, this.reportsTo);
+            ResultSet results = stmt.executeQuery();
+            if (results.next()) {
+                return new Employee(results);
+            } else {
+                return null;
+            }
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+
     }
 
     public static List<Employee> all() {
         return all(0, Integer.MAX_VALUE);
     }
 
-    public static List<Employee> all(int page, int count) {
+    public static List<Employee> all(int page, int count) { //Pagination implemented on backend.
+        //Just needs to be implemented on the front end.
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM employees LIMIT ?"
+                     "SELECT * FROM employees LIMIT ? OFFSET ?"
              )) {
             stmt.setInt(1, count);
+            stmt.setInt(2, count * (page-1));
             ResultSet results = stmt.executeQuery();
             List<Employee> resultList = new LinkedList<>();
             while (results.next()) {
@@ -177,7 +194,23 @@ public class Employee extends Model {
     }
 
     public static Employee findByEmail(String newEmailAddress) {
-        throw new UnsupportedOperationException("Implement me");
+        String query = "SELECT * FROM employees " +
+                "WHERE Email LIKE ?";
+
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, newEmailAddress);
+            ResultSet results = stmt.executeQuery();
+
+            if (results.next()) {
+                return new Employee(results);
+            }else {
+                return null;
+            }
+
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
 
     public static Employee find(long employeeId) {
@@ -199,9 +232,7 @@ public class Employee extends Model {
         title = programmer;
     }
 
-    public void setReportsTo(Employee employee) {
-        // TODO implement
-    }
+    public void setReportsTo(Employee employee) {this.reportsTo = employee.employeeId;} //Just grab the Id.
 
     public static class SalesSummary {
         private String firstName;

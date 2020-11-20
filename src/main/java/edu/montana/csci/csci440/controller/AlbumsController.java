@@ -18,7 +18,7 @@ public class AlbumsController {
 
         post("/albums/new", (req, resp) -> {
             Album album = new Album();
-            Web.putValuesInto(album, "Title");
+            Web.putValuesInto(album, "Title" ,"ArtistId");
             if (album.create()) {
                 Web.message("Created A Album!");
                 return Web.redirect("/albums/" + album.getAlbumId());
@@ -51,7 +51,7 @@ public class AlbumsController {
 
         post("/albums/:id", (req, resp) -> {
             Album album = Album.find(Integer.parseInt(req.params(":id")));
-            Web.putValuesInto(album, "Title");
+            Web.putValuesInto(album, "Title", "ArtistId");
             if (album.update()) {
                 Web.message("Updated Album!");
                 return Web.redirect("/albums/" + album.getAlbumId());

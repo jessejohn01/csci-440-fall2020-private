@@ -24,10 +24,9 @@ public class Playlist extends Model {
     }
 
 
-    public List<Track> getTracks(){
-        // TODO implement, order by track name
-        return Collections.emptyList();
-    }
+    public List<Track> getTracks(){ return Track.forPlaylist(playlistId); } //Implemented in Track class.
+    //This was to bring the database connections down. Each track would get use a find connection. Now its just
+    //2 database connections compared to the 200+ in the test.
 
     public Long getPlaylistId() {
         return playlistId;
@@ -48,9 +47,10 @@ public class Playlist extends Model {
     public static List<Playlist> all(int page, int count) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM playlists LIMIT ?"
+                     "SELECT * FROM playlists LIMIT ? OFFSET ?"
              )) {
             stmt.setInt(1, count);
+            stmt.setInt(2, count * (page-1));
             ResultSet results = stmt.executeQuery();
             List<Playlist> resultList = new LinkedList<>();
             while (results.next()) {
@@ -75,6 +75,26 @@ public class Playlist extends Model {
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
+    }
+
+    public static List<Playlist> forPlaylist(Long TrackId){ //Gets a playlist that a trackId is a part of.
+        String query = "SELECT * " +
+                "FROM playlists " +
+                "JOIN playlist_track on playlists.PlaylistId = playlist_track.PlaylistId " +
+                "WHERE playlist_track.TrackId=?";
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, TrackId);
+            ResultSet results = stmt.executeQuery();
+            List<Playlist> resultList = new LinkedList<>();
+            while (results.next()) {
+                resultList.add(new Playlist(results));
+            }
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+
     }
 
 }
