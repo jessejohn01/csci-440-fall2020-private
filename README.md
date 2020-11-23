@@ -80,8 +80,8 @@ The project will be largely graded via automated tests.  The grading will be bro
   * Track search
   * Paging implemented in the Track main view 
   * A Group By based report page
-* 10% - Code quality and satisfaction of the Redis cache, determined by manual inspection
-* 5% - At least one use of htmx (https://htmx.org) in the application to add dynamic AJAX behavior
+* 15% - Code quality and satisfaction of the Redis cache, determined by manual inspection
+* 2% extra credit - At least one use of htmx (https://htmx.org) in the application to add dynamic AJAX behavior
 
 ### Project Resources
 
