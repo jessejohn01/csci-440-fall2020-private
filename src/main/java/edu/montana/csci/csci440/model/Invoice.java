@@ -33,9 +33,23 @@ public class Invoice extends Model {
         invoiceId = results.getLong("InvoiceId");
     }
 
-    public List<InvoiceItem> getInvoiceItems(){
-        //TODO implement
-        return Collections.emptyList();
+    public List<InvoiceItem> getInvoiceItems(){ // untested.. but should work..
+
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT * FROM invoice_items " +
+                             "WHERE InvoiceId=?"
+             )) {
+            stmt.setLong(1, this.invoiceId);
+            ResultSet results = stmt.executeQuery();
+            List<InvoiceItem> resultList = new LinkedList<>();
+            while (results.next()) {
+                resultList.add(new InvoiceItem(results));
+            }
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
     public Customer getCustomer() {
         return null;

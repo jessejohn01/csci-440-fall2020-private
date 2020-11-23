@@ -30,7 +30,7 @@ public class Employee extends Model {
         title = results.getString("Title");
     }
 
-    public static List<Employee.SalesSummary> getSalesSummaries() { //Grabs a
+    public static List<Employee.SalesSummary> getSalesSummaries() { //Grabs a sales summary of all employees.
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
                      "SELECT employees.FirstName as FirstName, employees.LastName as LastName, employees.Email as Email, COUNT(invoices.InvoiceId) as SalesCount, ROUND(Sum(invoices.Total),2) as SalesTotal FROM employees\n" +
